@@ -90,6 +90,11 @@ for i in range(num_pic):
             bbox = bboxes[i]
             ann['area']         = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1])
             ann['bbox']         = [bbox[0], bbox[1], (bbox[2] - bbox[0]), (bbox[3] - bbox[1])]
+            poly_list           = [bbox[0],     (bbox[1] + bbox[3])/2, 
+                                    (bbox[0] + bbox[2])/2,    bbox[1], 
+                                    bbox[2],    (bbox[1] + bbox[3])/2, 
+                                    (bbox[0] + bbox[2])/2,    bbox[3]]
+            ann['segmentation'] = [poly_list]
             annotations2.append(ann)
 
         annotations = annotations + annotations2
