@@ -1,0 +1,7 @@
+sudo docker tag flags1 hub.sf.ucloud.cn/qizhi_048/flags1:latest
+
+sudo docker push hub.sf.ucloud.cn/qizhi_048/flags1
+
+docker login hub.sf.ucloud.cn
+
+Nrf4sJtrs85qzq2I
