@@ -56,31 +56,22 @@ def convert_from_cls_format(cls_boxes, cls_segms, cls_keyps):
     return boxes, segms, keyps, classes
     
 
-PROJECT_DIR     = '/userhome/flags/'
-OUTPUT          = PROJECT_DIR + sys.argv[1] + '/'
-OUTPUT_CSV_DIR  = OUTPUT + sys.argv[2] #result_0607_3384_3.csv'
-MODEL           = OUTPUT + 'train/coco_2014_train/generalized_rcnn/' + sys.argv[3]#7.pkl'
-THRESHOLD       = sys.argv[4]
-# submit_list     = PROJECT_DIR + 'submit_example.csv'
-# with open(submit_list, 'r') as f:
-#     filenames = f.readlines()
-#     # lens = len(filenames)
-# filenames = [name.strip('\n') for name in filenames]
-filenames = glob(PROJECT_DIR + 'test/' +'*.jpg')
-# filenames = glob(PROJECT_DIR + 'test/' +'f*.jpg')
-# print(filenames)
-# print('++++')
+OUTPUT_CSV_DIR  = sys.argv[1] #'~/result1.csv'
+MODEL           = '/detectron/flags/' + sys.argv[2]
+PIC_PATH	= sys.argv[3]
+
+filenames = glob(PIC_PATH +'*.jpg')
+
 filenames2    = []  
 labels        = []  
 pix_cnt       = [] 
 conf          = [] 
 encode_pixel  = []
 submits = []
-label2order = [0, 4, 9, 17, 20, 24, 2, 30, 22, 37, 7, 11, 5, 21, 27, 38, 18, 31, 26, 12, 29,
-            32, 8, 33, 14, 40, 19, 16, 20, 13, 1, 35, 28, 36, 3, 10, 25, 34, 23, 39, 6]
+label2order = [0, 4, 9, 17, 20, 24, 2, 30, 22, 37, 7, 11, 5, 21, 27, 38, 18, 31, 26, 12, 29,32, 8, 33, 14, 40, 19, 16, 20, 13, 1, 35, 28, 36, 3, 10, 25, 34, 23, 39, 6]
 def main():
     logger = logging.getLogger(__name__)
-    merge_cfg_from_file(PROJECT_DIR + '101.yaml')
+    merge_cfg_from_file('/detectron/flags/101.yaml')
     cfg.NUM_GPUS = 1
     assert_and_infer_cfg(cache_urls=False)
     model = infer_engine.initialize_model_from_cfg(MODEL)
@@ -98,7 +89,7 @@ def main():
         t = time.time()
         with c2_utils.NamedCudaScope(0):
             cls_boxes, cls_segms, cls_keyps = infer_engine.im_detect_all(model, im2, None, timers=timers)
-        print('!!!!!allbox:-->', len(cls_boxes))
+        # print('!!!!!allbox:-->', cls_boxes)
         keypoints=None
         if isinstance(cls_boxes, list):
             cls_boxes, cls_segms, keypoints, classes = convert_from_cls_format(cls_boxes, cls_segms, keypoints)
@@ -107,27 +98,30 @@ def main():
        
         segms = cls_segms        
         boxes = cls_boxes
-        print(boxes)
+        #print(boxes)
         # submits.append(filename)
-        scores = boxes[:, -1]
-        print('scores', scores)
-        submit = filename# TODO
         if boxes is not None:
-            for i in range(len(boxes)):
+            scores = boxes[:, -1]
+            sorted_inds = np.argsort(-scores)
+            # i = sorted_inds[0]
+            submit = filename.split('/')[-1]
+            pic_label = classes[sorted_inds[0]]
+            for i in sorted_inds:
+                print(boxes[i])
                 bbox  = boxes[i, :4]
                 score = boxes[i, -1]
                 label = classes[i]
-                order = label2order[label]
-                if score < THRESHOLD:
+                if label != pic_label:
                     continue
+                order = label2order[label]
+                #print(order)
+                
                 x1, y1, x2, y2 = boxes[i, 0], boxes[i, 1], boxes[i, 2], boxes[i, 3]
                 w, h = x2-x1, y2-y1
-                
-                submit = submit \
-                    + '\t(' + str(x1) + ',' + str(y1) + ',' + str(w) + ',' + str(h) + ')\t' \
-                    + str(order)
+                print(x1,y1,w,h)
+                submit = submit + '\t(' + str(int(x1)) + ',' + str(int(y1)) + ',' + str(int(w)) + ',' + str(int(h)) + ')\t' + str(order)
         
-        submits.append(submit)    
+            submits.append(submit)    
 
         # if (frame_cnt>3):
         #    break
