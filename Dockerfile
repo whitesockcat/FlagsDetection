@@ -28,6 +28,7 @@ RUN make
 RUN make ops
 
 ADD model_iter19999.pkl /detectron/flags/
+ADD model_final.pkl /detectron/flags/
 ADD 101.yaml /detectron/flags/
 ADD infer_csv.py /detectron/flags/
 # not sure net.py
