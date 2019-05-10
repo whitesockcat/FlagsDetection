@@ -55,10 +55,10 @@ def convert_from_cls_format(cls_boxes, cls_segms, cls_keyps):
         classes += [j] * len(cls_boxes[j])
     return boxes, segms, keyps, classes
     
-
-OUTPUT_CSV_DIR  = sys.argv[1] #'~/result1.csv'
-MODEL           = '/detectron/flags/' + sys.argv[2]
-PIC_PATH	= sys.argv[3]
+PIC_PATH	    = sys.argv[1]
+CFG_PATH        = sys.argv[2] # '/detectron/flags/101.yaml'
+MODEL           = sys.argv[3]
+OUTPUT_CSV_DIR  = sys.argv[4] 
 
 filenames = glob(PIC_PATH +'*.jpg')
 
@@ -71,7 +71,7 @@ submits = []
 label2order = [0, 4, 9, 17, 20, 24, 2, 30, 22, 37, 7, 11, 5, 21, 27, 38, 18, 31, 26, 12, 29,32, 8, 33, 14, 40, 19, 16, 20, 13, 1, 35, 28, 36, 3, 10, 25, 34, 23, 39, 6]
 def main():
     logger = logging.getLogger(__name__)
-    merge_cfg_from_file('/detectron/flags/101.yaml')
+    merge_cfg_from_file(CFG_PATH)
     cfg.NUM_GPUS = 1
     assert_and_infer_cfg(cache_urls=False)
     model = infer_engine.initialize_model_from_cfg(MODEL)
