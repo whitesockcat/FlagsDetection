@@ -84,7 +84,7 @@ def main():
         frame_cnt = frame_cnt + 1
         im  = cv2.imread(image_path)
         im2 = im
-        print(image_path, frame_cnt, (np.array(im)).shape, (np.array(im2)).shape)
+        #print(image_path, frame_cnt, (np.array(im)).shape, (np.array(im2)).shape)
         timers = defaultdict(Timer)
         t = time.time()
         with c2_utils.NamedCudaScope(0):
@@ -107,7 +107,7 @@ def main():
             submit = filename.split('/')[-1]
             pic_label = classes[sorted_inds[0]]
             for i in sorted_inds:
-                print(boxes[i])
+                #print(boxes[i])
                 bbox  = boxes[i, :4]
                 score = boxes[i, -1]
                 label = classes[i]
@@ -118,11 +118,14 @@ def main():
                 
                 x1, y1, x2, y2 = boxes[i, 0], boxes[i, 1], boxes[i, 2], boxes[i, 3]
                 w, h = x2-x1, y2-y1
-                print(x1,y1,w,h)
+                # print(x1,y1,w,h)
                 submit = submit + '\t(' + str(int(x1)) + ',' + str(int(y1)) + ',' + str(int(w)) + ',' + str(int(h)) + ')\t' + str(order)
         
             submits.append(submit)    
-
+        else:
+            submit = filename.split('/')[-1] + '\t(0,0,'  + str(im.shape[1]) + ',' + \
+                str(im.shape[0]) + ')\t1'
+            submits.append(submit)
         # if (frame_cnt>3):
         #    break
 
