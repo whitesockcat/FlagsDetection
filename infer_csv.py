@@ -61,6 +61,27 @@ MODEL           = sys.argv[3]
 OUTPUT_CSV_DIR  = sys.argv[4] 
 
 filenames = glob(PIC_PATH +'*.jpg')
+def get_size(image_size, min_size, max_size):
+    w, h = image_size
+    size = min_size
+    max_size = max_size
+    if max_size is not None:
+        min_original_size = float(min((w, h)))
+        max_original_size = float(max((w, h)))
+        if max_original_size / min_original_size * size > max_size:
+            size = int(round(max_size * min_original_size / max_original_size))
+
+    if (w <= h and w == size) or (h <= w and h == size):
+        return (h, w)
+
+    if w < h:
+        ow = size
+        oh = int(size * h / w)
+    else:
+        oh = size
+        ow = int(size * w / h)
+
+    return (oh, ow)
 
 filenames2    = []  
 labels        = []  
@@ -83,7 +104,10 @@ def main():
         image_path = filename
         frame_cnt = frame_cnt + 1
         im  = cv2.imread(image_path)
-        im2 = im
+        min_size = cfg.TEST.SCALE
+        max_size = cfg.TEST.MAX_SIZE
+        out_size = get_size(im.shape[1], im.shape[0]), min_size, max_size)
+        im2 = cv2.resize(im, dsize=out_size)
         #print(image_path, frame_cnt, (np.array(im)).shape, (np.array(im2)).shape)
         timers = defaultdict(Timer)
         t = time.time()
