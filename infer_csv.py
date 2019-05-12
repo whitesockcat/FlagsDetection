@@ -106,7 +106,7 @@ def main():
         im  = cv2.imread(image_path)
         min_size = cfg.TEST.SCALE
         max_size = cfg.TEST.MAX_SIZE
-        out_size = get_size(im.shape[1], im.shape[0]), min_size, max_size)
+        out_size = get_size((im.shape[1], im.shape[0]), min_size, max_size)
         im2 = cv2.resize(im, dsize=out_size)
         #print(image_path, frame_cnt, (np.array(im)).shape, (np.array(im2)).shape)
         timers = defaultdict(Timer)
